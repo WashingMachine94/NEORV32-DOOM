@@ -26,6 +26,7 @@
 
 #include "d_ticcmd.h"
 #include "d_event.h"
+#include <stdint.h>
 
 #ifdef __GNUG__
 #pragma interface

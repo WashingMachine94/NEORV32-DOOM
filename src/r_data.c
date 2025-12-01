@@ -689,6 +689,29 @@ int R_FlatNumForName (char* name)
 // Check whether texture is available.
 // Filter out NoTexture indicator.
 //
+
+#include <ctype.h>
+
+int strncasecmp(const char *s1, const char *s2, size_t n) {
+    if (n == 0)
+        return 0;
+
+    while (n-- != 0 && *s1 && *s2) {
+        int c1 = tolower((unsigned char)*s1++);
+        int c2 = tolower((unsigned char)*s2++);
+        if (c1 != c2)
+            return c1 - c2;
+    }
+
+    if (n == (size_t)-1) {
+        // compared exactly n chars, equal so far
+        return 0;
+    }
+
+    return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
+}
+
+
 int     R_CheckTextureNumForName (char *name)
 {
     int         i;

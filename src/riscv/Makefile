@@ -1,11 +1,12 @@
-CROSS ?= riscv-none-embed-
+# Use the NEORV32 toolchain
+CROSS ?= riscv-none-elf-
 
 CC = $(CROSS)gcc
 OBJCOPY = $(CROSS)objcopy
 SIZE = $(CROSS)size
 ICEPROG = iceprog
 
-CFLAGS=-Wall -O2 -march=rv32im -mabi=ilp32 -ffreestanding -flto -nostartfiles -fomit-frame-pointer -Wl,--gc-section --specs=nano.specs -I..
+CFLAGS=-Wall -O2 -std=c11 -march=rv32im -mabi=ilp32 -ffreestanding -flto -nostartfiles -fomit-frame-pointer -Wl,--gc-section --specs=nano.specs -I..
 
 CFLAGS += \
 	-DNORMALUNIX \
