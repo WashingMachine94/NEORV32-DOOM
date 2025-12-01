@@ -9,7 +9,6 @@
 //
 
 #define BAUD_RATE 19200
-#define BLOCK_SIZE 512
 
 // SD command definitions
 #define CMD0_GO_IDLE_STATE 0
@@ -140,7 +139,7 @@ uint8_t sd_init(void) {
         return 0;
     }
     if (resp[0] != SD_IDLE_STATE) {
-        neorv32_uart0_printf("ERROR: CMD8 failed. SD card may not support required voltage.\n");
+        neorv32_uart0_printf("ERROR: CMD8_SEND_IF_COND failed. SD card may not support required voltage.\n");
         return 0;
     }
 
@@ -156,7 +155,7 @@ uint8_t sd_init(void) {
     do {
         sd_send_command(CMD55_APP_CMD, 0, DEFAULT_CRC, resp, 1);
         if (resp[0] > 1) {
-            neorv32_uart0_printf("ERROR: CMD55 failed (response 0x");
+            neorv32_uart0_printf("ERROR: CMD55_APP_CMD failed (response 0x");
             aux_print_hex_byte(resp[0]);
             neorv32_uart0_printf("). Cannot send ACMD41.\n");
             return 0;
@@ -177,7 +176,7 @@ uint8_t sd_init(void) {
     neorv32_uart0_printf("CMD58 (READ_OCR)...\n");
     sd_send_command(CMD58_READ_OCR, 0, DEFAULT_CRC, resp, 5);
     if (resp[0] != SD_READY) {
-        neorv32_uart0_printf("ERROR: CMD58 failed. Cannot read OCR register.\n");
+        neorv32_uart0_printf("ERROR: CMD58_READ_OCR failed. Cannot read OCR register.\n");
         return 0;
     }
 
@@ -185,11 +184,11 @@ uint8_t sd_init(void) {
     for (int i = 1; i < 5; i++) aux_print_hex_byte(resp[i]);
     neorv32_uart0_printf("\n");
 
-    neorv32_uart0_printf("CMD16 (SET_BLOCKLEN=%d)...\n", BLOCK_SIZE);
+    neorv32_uart0_printf("CMD16_SET_BLOCKLEN (SET_BLOCKLEN=%d)...\n", BLOCK_SIZE);
     sd_send_command(CMD16_SET_BLOCKLEN, BLOCK_SIZE, DEFAULT_CRC, resp, 1);
 
     if (resp[0] != SD_READY) {
-        neorv32_uart0_printf("ERROR: CMD16 failed. Card did not accept %d-byte block size.\n", BLOCK_SIZE);
+        neorv32_uart0_printf("ERROR: CMD16_SET_BLOCKLEN failed. Card did not accept %d-byte block size.\n", BLOCK_SIZE);
         return 0;
     }
 
@@ -243,6 +242,11 @@ void sd_read_block(uint32_t blockIndex, uint8_t* buffer) {
     spi_transfer_byte(0xFF);
 }
 
+// Read data from WAD file stored on SD card
+// - dest: pointer to destination buffer
+// - wad_start_block: starting block of the WAD file on SD card
+// - lump_offset: offset of the lump within the WAD file
+// - lump_size: size of the lump to read
 void wad_read_bytes(uint8_t* dest, uint32_t wad_start_block, uint32_t lump_offset, uint32_t lump_size) {
     uint8_t block[BLOCK_SIZE];
 
